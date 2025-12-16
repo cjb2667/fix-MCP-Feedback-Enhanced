@@ -440,7 +440,7 @@ async def interactive_feedback(
     summary: Annotated[
         str, Field(description="AI 工作完成的摘要說明")
     ] = "我已完成了您請求的任務。",
-    timeout: Annotated[int, Field(description="等待用戶回饋的超時時間（秒）")] = 86400,
+    timeout: Annotated[int, Field(description="等待用戶回饋的超時時間（秒）")] = 604800,
 ) -> list:
     """Interactive feedback collection tool for LLM agents.
 
@@ -454,7 +454,7 @@ async def interactive_feedback(
     Args:
         project_directory: Project directory path for context
         summary: Summary of AI work completed for user review
-        timeout: Timeout in seconds for waiting user feedback (default: 86400 seconds)
+        timeout: Timeout in seconds for waiting user feedback (default: 604800 seconds)
 
     Returns:
         list: List containing TextContent and MCPImage objects representing user feedback

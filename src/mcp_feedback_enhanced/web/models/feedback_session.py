@@ -170,7 +170,7 @@ class WebFeedbackSession:
 
         # 新增：用戶設定的會話超時
         self.user_timeout_enabled = False
-        self.user_timeout_seconds = 3600  # 預設 1 小時
+        self.user_timeout_seconds = 604800  # 預設一週
         self.user_timeout_timer: threading.Timer | None = None
 
         # 確保臨時目錄存在
@@ -426,7 +426,7 @@ class WebFeedbackSession:
         )
         return stats
 
-    def update_timeout_settings(self, enabled: bool, timeout_seconds: int = 3600):
+    def update_timeout_settings(self, enabled: bool, timeout_seconds: int = 604800):
         """
         更新用戶設定的會話超時
 

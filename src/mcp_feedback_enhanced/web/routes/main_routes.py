@@ -678,7 +678,7 @@ async def handle_websocket_message(manager: "WebUIManager", session, data: dict)
         debug_log(f"收到超時設定更新: {settings}")
         if settings.get("enabled"):
             session.update_timeout_settings(
-                enabled=True, timeout_seconds=settings.get("seconds", 3600)
+                enabled=True, timeout_seconds=settings.get("seconds", 604800)
             )
         else:
             session.update_timeout_settings(enabled=False)

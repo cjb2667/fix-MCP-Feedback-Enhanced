@@ -8,7 +8,7 @@
 ### ✅ 已修复问题
 
 1. **超时设置问题**：修复了超时时间永远是 600s 的问题，现已修复默认 24 小时超时
-   ，可以长时间等待反馈啦
+   ，可以长时间（一周）等待反馈啦
 2. **图片上传问题**：修复了无法上传图片报错序列号错误的问题，现已支持更多类型图
    片 😁🎉
 3. **断网重连功能**：新增断网不断链接功能，现在可以离线同一个会话等待（适合使用
@@ -31,7 +31,7 @@ Fork 本项目到本地，在 Cursor 中配置：
         "-m",
         "mcp_feedback_enhanced"
       ],
-      "timeout": 86400,
+      "timeout": 604800,
       "env": {
         "MCP_DEBUG": "false",
         "MCP_WEB_HOST": "127.0.0.1",
@@ -51,14 +51,14 @@ Fork 本项目到本地，在 Cursor 中配置：
 
 ### 📸 界面预览
 
-<em>1.支持提示管理、自动提交、会话跟踪上传图片等功能</em>
+<em>1.支持上传图片、提示管理、自动提交、会话跟踪等功能、无限等待下次指令</em>
 
 <div align="center">
   <img src="images/0.png" width="600" alt="MCP Feedback Enhanced 界面预览" />
   <br>
 </div>
 
-<em>2.超时功能展示 - 默认等待24小时</em>
+<em>2.超时功能展示 - 默认等待一周超长待机</em>
 
 <div align="center">
   <img src="images/1.png" width="600" alt="MCP Feedback Enhanced 功能展示" />
@@ -69,14 +69,11 @@ Fork 本项目到本地，在 Cursor 中配置：
 
 ### MCP Interactive Feedback 规则
 
-1. 在任何流程、任务、对话进行时，无论是询问、回复、或完成阶段性任务，皆必须调用
-   MCP mcp-feedback-enhanced。
-2. 每当收到用户反馈，若反馈内容非空，必须再次调用 MCP mcp-feedback-enhanced，并
-   根据反馈内容调整行为。
-3. 仅当用户明确表示「结束」或「不再需要交互」时，才可停止调用 MCP
-   mcp-feedback-enhanced，流程才算结束。
+1. 在任何流程、任务、对话进行时，无论是询问、回复、或完成阶段性任务，皆必须调用 MCP mcp-feedback-enhanced。
+2. 每当收到用户反馈，若反馈内容非空，必须再次调用 MCP mcp-feedback-enhanced，并根据反馈内容调整行为。
+3. 仅当用户明确表示「结束」或「不再需要交互」时，才可停止调用 MCP mcp-feedback-enhanced，流程才算结束。
 4. 除非收到结束指令，否则所有步骤都必须重复调用 MCP mcp-feedback-enhanced。
-5. 完成任务前，必须使用 MCP mcp-feedback-enhanced 工具向用户询问反馈。 6.将默认
-   超时时间设置为 86400
+5. 完成任务前，必须使用 MCP mcp-feedback-enhanced 工具向用户询问反馈。
+6. 将默认超时时间设置为 6048000
 
 ---
