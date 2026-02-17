@@ -268,39 +268,84 @@
 
         /**
          * 創建自動提交倒計時器
+         *
+         * 修復：使用真實墻鐘時間（Date.now()）計算剩餘秒數，
+         * 解決 Chrome 後台標簽頁 setInterval 被節流（5分鐘後降至每分鐘1次）
+         * 導致倒計時大幅變慢甚至停滯的問題。
+         * 同時添加 visibilitychange 監聽，標簽頁回到前台時立即校驗倒計時。
          */
         createAutoSubmitCountdown: function(timeoutSeconds, onTick, onComplete, options) {
             options = options || {};
-            const interval = options.interval || 1000;
+            var interval = options.interval || 1000;
 
-            let remainingTime = timeoutSeconds;
-            let timer = null;
-            let isPaused = false;
-            let isCompleted = false;
+            var startTime = null;
+            var timer = null;
+            var isPausedFlag = false;
+            var isCompletedFlag = false;
+            var pauseStartTime = null;
+            var totalPausedMs = 0;
+            var visibilityHandler = null;
+            var remainingTime = timeoutSeconds;
 
-            const countdownManager = {
+            // 基於真實墻鐘時間計算剩餘秒數
+            function calcRemaining() {
+                if (isCompletedFlag) return 0;
+                if (!startTime) return timeoutSeconds;
+
+                var now = Date.now();
+                var currentPausedMs = (isPausedFlag && pauseStartTime) ? (now - pauseStartTime) : 0;
+                var effectiveElapsedMs = now - startTime - totalPausedMs - currentPausedMs;
+                return Math.max(0, timeoutSeconds - Math.floor(effectiveElapsedMs / 1000));
+            }
+
+            // 檢查剩餘時間並觸發回調
+            function tickAndCheck() {
+                if (isCompletedFlag || isPausedFlag) return;
+
+                remainingTime = calcRemaining();
+
+                if (onTick) {
+                    onTick(remainingTime, false);
+                }
+
+                if (remainingTime <= 0) {
+                    isCompletedFlag = true;
+                    if (timer) {
+                        clearInterval(timer);
+                        timer = null;
+                    }
+                    removeVisibilityListener();
+                    if (onComplete) {
+                        onComplete();
+                    }
+                }
+            }
+
+            // 移除頁面可見性監聽
+            function removeVisibilityListener() {
+                if (visibilityHandler) {
+                    document.removeEventListener('visibilitychange', visibilityHandler);
+                    visibilityHandler = null;
+                }
+            }
+
+            var countdownManager = {
                 start: function() {
-                    if (timer || isCompleted) return;
+                    if (timer || isCompletedFlag) return;
+
+                    startTime = Date.now();
 
                     timer = setInterval(function() {
-                        if (isPaused || isCompleted) return;
-
-                        remainingTime--;
-
-                        if (onTick) {
-                            onTick(remainingTime, false);
-                        }
-
-                        if (remainingTime <= 0) {
-                            isCompleted = true;
-                            clearInterval(timer);
-                            timer = null;
-
-                            if (onComplete) {
-                                onComplete();
-                            }
-                        }
+                        tickAndCheck();
                     }, interval);
+
+                    // 監聽頁面可見性變化 - 標簽頁回到前台時立即校驗倒計時
+                    visibilityHandler = function() {
+                        if (!document.hidden && !isPausedFlag && !isCompletedFlag) {
+                            tickAndCheck();
+                        }
+                    };
+                    document.addEventListener('visibilitychange', visibilityHandler);
 
                     // 立即觸發第一次 tick
                     if (onTick) {
@@ -311,12 +356,19 @@
                 },
 
                 pause: function() {
-                    isPaused = true;
+                    isPausedFlag = true;
+                    pauseStartTime = Date.now();
                     return this;
                 },
 
                 resume: function() {
-                    isPaused = false;
+                    if (isPausedFlag && pauseStartTime) {
+                        totalPausedMs += (Date.now() - pauseStartTime);
+                        pauseStartTime = null;
+                    }
+                    isPausedFlag = false;
+                    // 恢復後立即校驗
+                    tickAndCheck();
                     return this;
                 },
 
@@ -325,32 +377,38 @@
                         clearInterval(timer);
                         timer = null;
                     }
-                    isCompleted = true;
+                    removeVisibilityListener();
+                    isCompletedFlag = true;
                     return this;
                 },
 
                 reset: function(newTimeoutSeconds) {
                     this.stop();
-                    remainingTime = newTimeoutSeconds || timeoutSeconds;
-                    isPaused = false;
-                    isCompleted = false;
+                    timeoutSeconds = newTimeoutSeconds || timeoutSeconds;
+                    remainingTime = timeoutSeconds;
+                    startTime = null;
+                    isPausedFlag = false;
+                    isCompletedFlag = false;
+                    totalPausedMs = 0;
+                    pauseStartTime = null;
                     return this;
                 },
 
                 getRemainingTime: function() {
+                    remainingTime = calcRemaining();
                     return remainingTime;
                 },
 
                 isPaused: function() {
-                    return isPaused;
+                    return isPausedFlag;
                 },
 
                 isCompleted: function() {
-                    return isCompleted;
+                    return isCompletedFlag;
                 },
 
                 isRunning: function() {
-                    return timer !== null && !isPaused && !isCompleted;
+                    return timer !== null && !isPausedFlag && !isCompletedFlag;
                 }
             };
 
