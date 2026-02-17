@@ -438,8 +438,8 @@ def process_images(images_data: list[dict]) -> list[ImageContent]:
 async def interactive_feedback(
     project_directory: Annotated[str, Field(description="專案目錄路徑")] = ".",
     summary: Annotated[
-        str, Field(description="AI 工作完成的摘要說明")
-    ] = "我已完成了您請求的任務。",
+        str, Field(description="AI 回覆完成的通知訊息")
+    ] = "AI 回覆完成。",
     timeout: Annotated[int, Field(description="等待用戶回饋的超時時間（秒）")] = 604800,
 ) -> list:
     """Interactive feedback collection tool for LLM agents.
@@ -449,11 +449,11 @@ async def interactive_feedback(
     2. Unless receiving termination instructions, all steps must repeatedly call this tool.
     3. Whenever user feedback is received, if the feedback content is not empty, you must call this tool again and adjust behavior based on the feedback content.
     4. Only when the user explicitly indicates "end" or "no more interaction needed" can you stop calling this tool, and the process is considered complete.
-    5. You should summarize what have done, and provide project directory through args to let user know what you have done to provide feedback for next step.
+    5. Do NOT summarize completed work in the summary parameter. Instead, output all content completely in the Cursor client first, then call this tool only to notify the user that the AI response is complete and to collect feedback.
 
     Args:
         project_directory: Project directory path for context
-        summary: Summary of AI work completed for user review
+        summary: A short notification message indicating AI response is complete (do NOT include work summary here)
         timeout: Timeout in seconds for waiting user feedback (default: 604800 seconds)
 
     Returns:
