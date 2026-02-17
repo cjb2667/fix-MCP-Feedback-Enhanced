@@ -91,6 +91,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden; /* 確保摘要容器不超出範圍 */
+        min-width: 0; /* 防止 flex 子項撐破父容器 */
       }
 
       #tab-combined.active.combined-horizontal #combinedSummaryContent {
@@ -130,6 +131,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden; /* 確保摘要容器不超出範圍 */
+        min-width: 0; /* 防止 flex 子項撐破父容器 */
       }
 
       #tab-combined.active.combined-vertical #combinedSummaryContent {
@@ -171,6 +173,7 @@
         flex-direction: column;
         flex: 1; /* 讓摘要容器自動填滿剩餘空間 */
         min-height: 0; /* 允許收縮 */
+        min-width: 0; /* 防止 flex 子項撐破父容器 */
       }
 
       #combinedSummaryContent {
@@ -178,6 +181,8 @@
         min-height: 150px; /* 設定合理的最小高度 */
         overflow-y: auto;
         overflow-x: hidden;
+        word-break: break-word; /* 長文本自動換行 */
+        min-width: 0; /* 防止內容撐破容器 */
       }
 
       .combined-section-title {
@@ -562,6 +567,8 @@
                   line-height: 1.6;
                   word-wrap: break-word;
                   overflow-wrap: break-word;
+                  word-break: break-word;
+                  overflow-x: hidden;
                 "
                 data-dynamic-content="aiSummary"
               >
@@ -753,6 +760,8 @@
                       line-height: 1.6;
                       word-wrap: break-word;
                       overflow-wrap: break-word;
+                      word-break: break-word;
+                      overflow-x: hidden;
                     "
                     data-dynamic-content="aiSummary"
                   >
